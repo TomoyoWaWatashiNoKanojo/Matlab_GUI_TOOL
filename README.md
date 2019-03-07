@@ -13,4 +13,5 @@ Run main.m to use it.
 3/7
 
 The points will change color(r to g) when they are chosen.
+
 The 'save' and ''load' function allow the program to save and load variables automaticlly(please keep the .mat files).
