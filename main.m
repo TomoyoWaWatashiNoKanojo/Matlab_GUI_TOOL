@@ -80,6 +80,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    clear global;
     hold off
     FileName=0;
     [FileName,PathName]=uigetfile( ...
@@ -94,20 +95,47 @@ function pushbutton1_Callback(hObject, eventdata, handles)
     else
         try 
             global pathall;
+            global imag
             pathall=strcat(PathName,FileName);
-            a=imread(pathall);
+            n=rename(pathall);
+            img=imread(pathall);
+            is_exist=exist(n,'file');
+            if is_exist~=0
+                load(n);
+                img=original_img;
+                imag=original_img;
+                pathall=1;
+            end
             axes(handles.axes1);
-            shooow=imshow(a);
+            shooow=imshow(img);
         catch ErrorInfo
             disp(ErrorInfo);
             h=warndlg(ErrorInfo.message,'Warning');
         end
+        if FileName~=0
+            set(handles.listbox1,'String','');
+        end
         set(shooow,'ButtonDownFcn',{@myCallback,handles});
         handles.shooow=shooow;
         guidata(hObject,handles);
-    end
-    if FileName~=0
-        set(handles.listbox1,'String','');
+        if is_exist~=0
+            global points;
+            se=size(poinnnt);
+            se=se(1);
+            for i=1:se
+                axis=poinnnt(i,:);
+                [x,y]=axis_transform(axis);
+                hold on
+                points(i)=plot(x,y,'.r','Markersize',20);
+                str=get(handles.listbox1,'string');
+                x2=int2str(x);
+                y2=int2str(y);
+                new_item=strcat(x2,',');
+                new_item=strcat(new_item,y2);
+                str=strvcat(str,new_item);
+                set(handles.listbox1,'String',str,'Value',1);
+            end
+        end
     end
 
 
@@ -119,6 +147,28 @@ function listbox1_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns listbox1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from listbox1
+    string = get(handles.listbox1, 'String');
+    ze=size(string);
+    if ze~=0
+        value=get(handles.listbox1,'value');
+        str=get(handles.listbox1,'string');
+        global points;
+        se=size(str);
+        se=se(1);
+        for i=1:se
+            axis=str(i,:);
+            [x,y]=axis_transform(axis);
+            hold on
+            delete(points(i));
+            points(i)=plot(x,y,'.r','Markersize',20);
+        end
+        axis=str(value,:);
+        [x,y]=axis_transform(axis);
+        hold on
+        delete(points(value));
+        points(value)=plot(x,y,'.g','Markersize',20);
+    end
+    
 
 
 % --- Executes during object creation, after setting all properties.
@@ -178,8 +228,20 @@ function pushbutton3_Callback(hObject, eventdata, handles)
                 imwrite(new_imagee.cdata,file,'jpg')
         end
         mat_name=rename(filename);
+        global points;
+        global pathall;
+        if pathall~=1 & pathall~=0
+            original_img=imread(pathall);
+            pathall
+        end
         poinnnt=get(handles.listbox1,'String');
-        uisave('poinnnt',mat_name);
+        is_exist=exist(mat_name,'file');
+        if pathall==1
+            global imag
+            original_img=imag;
+            delete(mat_name);
+        end
+        save(mat_name,'poinnnt','original_img');
         msgbox('Save successfully£¡','Finished£¡');
     end
 

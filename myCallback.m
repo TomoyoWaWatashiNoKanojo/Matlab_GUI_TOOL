@@ -14,7 +14,7 @@
         str=strvcat(str,new_item);
         global points;
         hold on
-        points(ss)=plot(x,y,'.','Markersize',20);
+        points(ss)=plot(x,y,'.r','Markersize',20);
     catch
     end
     set(handles.listbox1,'string',str);
