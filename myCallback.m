@@ -1,21 +1,25 @@
  function myCallback(hObject, eventdata, handles)
-    str=get(handles.listbox1,'string');
-    s=size(str);
-    ss=s(1)+1;
+    global I;
     pt=get(gca,'CurrentPoint');
-    x=pt(1,1);
-    y=pt(1,2);
-    fprintf('x=%f,y=%f \n',x,y);
+    x2=pt(1,1);
+    y2=pt(1,2);
+    %fprintf('x=%f,y=%f \n',x2,y2);
+    x2=round(x2);
+    y2=round(y2);
     try
-        x2=int2str(x);
-        y2=int2str(y);
-        new_item=strcat(x2,',');
-        new_item=strcat(new_item,y2);
-        str=strvcat(str,new_item);
-        global points;
         hold on
-        points(ss)=plot(x,y,'.r','Markersize',20);
+        hh=plot(x2,y2,'.r','Markersize',10);
+        set(hh,'ButtonDownFcn',{@pointCallback,handles});
+        handles.hh=hh;
+        guidata(hObject,handles);
+        I.msg_num_add(x2,y2,hh);
+        str=I.get_now_points(I.len);
+        set(handles.text3,'string',str);
+        I.surrent_point=I.len;
+        if I.chose_symbol~=0
+            delete(I.chose_symbol);
+        end
+        I.chose_symbol=plot(I.x(I.len),I.y(I.len),'go','Markersize',10);
     catch
     end
-    set(handles.listbox1,'string',str);
  end

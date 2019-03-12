@@ -22,7 +22,7 @@ function varargout = main(varargin)
 
 % Edit the above text to modify the response to help main
 
-% Last Modified by GUIDE v2.5 28-Feb-2019 11:37:07
+% Last Modified by GUIDE v2.5 12-Mar-2019 19:21:11
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,8 +60,6 @@ guidata(hObject, handles);
 
 % UIWAIT makes main wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-global pathall;
-pathall=0;
 
 
 % --- Outputs from this function are returned to the command line.
@@ -80,9 +78,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton1 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    clear global;
-    hold off
-    FileName=0;
+FileName=0;
     [FileName,PathName]=uigetfile( ...
     {'*.jpg;*.bmp;*.tif','Image Files(*.jpg,*.bmp,*.tif)';
     '*.jpg','*.jpg';
@@ -91,52 +87,57 @@ function pushbutton1_Callback(hObject, eventdata, handles)
     '*.*','All Files(*.*)'},...
     'Select images','Multiselect','on');   
     if isequal(FileName,0)  
-        disp('User selected Cancel')  
+        disp('User selected Cancel') 
     else
         try 
-            global pathall;
-            global imag
+            global I;
+            I=IMG;
             pathall=strcat(PathName,FileName);
             n=rename(pathall);
-            img=imread(pathall);
-            is_exist=exist(n,'file');
+            is_exist=exist(n,'file')
             if is_exist~=0
                 load(n);
-                img=original_img;
-                imag=original_img;
-                pathall=1;
+                I=saved_I;
+                axes(handles.axes1);
+                shooow=imshow(I.path);
+                hold on;
+                for i=1:I.len
+                    h=plot(I.x(i),I.y(i),'.r','Markersize',10);
+                    set(h,'ButtonDownFcn',{@pointCallback,handles});
+                    handles.h=h;
+                    guidata(hObject,handles);
+                    I.plot_handle(i)=h;
+                end
+                set(shooow,'ButtonDownFcn',{@myCallback,handles});
+                handles.shooow=shooow;
+                guidata(hObject,handles);
+                return;
             end
+            img=imread(pathall);
             axes(handles.axes1);
             shooow=imshow(img);
+            I.setInfo(pathall);
         catch ErrorInfo
             disp(ErrorInfo);
             h=warndlg(ErrorInfo.message,'Warning');
         end
-        if FileName~=0
-            set(handles.listbox1,'String','');
-        end
         set(shooow,'ButtonDownFcn',{@myCallback,handles});
         handles.shooow=shooow;
         guidata(hObject,handles);
-        if is_exist~=0
-            global points;
-            se=size(poinnnt);
-            se=se(1);
-            for i=1:se
-                axis=poinnnt(i,:);
-                [x,y]=axis_transform(axis);
-                hold on
-                points(i)=plot(x,y,'.r','Markersize',20);
-                str=get(handles.listbox1,'string');
-                x2=int2str(x);
-                y2=int2str(y);
-                new_item=strcat(x2,',');
-                new_item=strcat(new_item,y2);
-                str=strvcat(str,new_item);
-                set(handles.listbox1,'String',str,'Value',1);
-            end
-        end
     end
+
+
+% --- Executes on button press in pushbutton2.
+function pushbutton2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton2 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    global I;
+    if(I.surrent_point~=0)
+        flag=I.del_points(I.surrent_point);
+        set(handles.text3,'string','current point');
+    end
+    
 
 
 % --- Executes on selection change in listbox1.
@@ -147,28 +148,6 @@ function listbox1_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns listbox1 contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from listbox1
-    string = get(handles.listbox1, 'String');
-    ze=size(string);
-    if ze~=0
-        value=get(handles.listbox1,'value');
-        str=get(handles.listbox1,'string');
-        global points;
-        se=size(str);
-        se=se(1);
-        for i=1:se
-            axis=str(i,:);
-            [x,y]=axis_transform(axis);
-            hold on
-            delete(points(i));
-            points(i)=plot(x,y,'.r','Markersize',20);
-        end
-        axis=str(value,:);
-        [x,y]=axis_transform(axis);
-        hold on
-        delete(points(value));
-        points(value)=plot(x,y,'.g','Markersize',20);
-    end
-    
 
 
 % --- Executes during object creation, after setting all properties.
@@ -184,34 +163,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in pushbutton2.
-function pushbutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    value = get(handles.listbox1, 'Value');
-    string = get(handles.listbox1, 'String');
-    ze=size(string);
-    if ze~=0
-        string(value,:)=[];
-        global points;
-        delete(points(value));
-        clear points(value);
-        points(value)=[];
-    
-        if value>1
-            set(handles.listbox1,'String',string,'Value',value-1);
-        else
-            set(handles.listbox1,'String',string,'Value',1);
-        end
-    else
-        warndlg('No points in list!','Warning');
-    end
-
-
-% --- Executes on button press in pushbutton3.
-function pushbutton3_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3 (see GCBO)
+% --- Executes on button press in pushbutton4.
+function pushbutton4_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton4 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     zoom out ;
@@ -228,76 +182,17 @@ function pushbutton3_Callback(hObject, eventdata, handles)
                 imwrite(new_imagee.cdata,file,'jpg')
         end
         mat_name=rename(filename);
-        global points;
-        global pathall;
-        if pathall~=1 & pathall~=0
-            original_img=imread(pathall);
-            pathall
-        end
-        poinnnt=get(handles.listbox1,'String');
+        global I;
+        saved_I=I;
+        saved_I.surrent_point=0;
+        delete(saved_I.chose_symbol);
+        saved_I.chose_symbol=0;
         is_exist=exist(mat_name,'file');
-        if pathall==1
-            global imag
-            original_img=imag;
+        if is_exist==1
             delete(mat_name);
         end
-        save(mat_name,'poinnnt','original_img');
+        save(mat_name,'saved_I');
         msgbox('Save successfully£¡','Finished£¡');
-    end
-
-
-% --- Executes on slider movement.
-function slider1_Callback(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
-function slider1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
-% --- Executes on slider movement.
-function slider2_Callback(hObject, eventdata, handles)
-% hObject    handle to slider2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'Value') returns position of slider
-%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
-
-
-% --- Executes during object creation, after setting all properties.
-function slider2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to slider2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: slider controls usually have a light gray background.
-if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor',[.9 .9 .9]);
-end
-
-
-% --- Executes on button press in pushbutton4.
-function pushbutton4_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton4 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    global pathall;
-    if pathall~=0
-        zoom on;
     end
 
 
@@ -306,30 +201,14 @@ function pushbutton6_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton6 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    global pathall;
-    if pathall~=0
-        zoom off;
-    end
+zoom off;
 
-
-
-function edit1_Callback(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
+% --- Executes on button press in pushbutton7.
+function pushbutton7_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton7 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit1 as text
-%        str2double(get(hObject,'String')) returns contents of edit1 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+    global I;
+    %if (I.path~=0)
+        zoom on;
+    % end
