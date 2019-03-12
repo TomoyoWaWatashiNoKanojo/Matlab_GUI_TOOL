@@ -15,3 +15,12 @@ Run main.m to use it.
 The points will change color(r to g) when they are chosen.
 
 The 'save' and ''load' function allow the program to save and load variables automaticlly(please keep the .mat files).
+
+
+3/12
+
+Use a static text instead of the listbox to interacte with the users.
+
+Create a new class to save the parameters.
+
+When users choose a point, this point will be highlighted.
