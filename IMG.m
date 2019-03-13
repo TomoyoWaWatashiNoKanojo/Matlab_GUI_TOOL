@@ -9,6 +9,7 @@ classdef IMG < handle
         prev_point=0;
         surrent_point=0;
         chose_symbol=0;
+        Model=-1; %-1:draw 1:enlarge
     end
     methods % these are the functions
         function obj = IMG() % constructor
@@ -58,6 +59,23 @@ classdef IMG < handle
             end
             obj.surrent_point=0;
             delete(obj.chose_symbol);
+        end
+        function image=save_img(obj)
+            try
+                warning off
+                h1=figure(1);
+                set(h1,'visible','off'); 
+                imshow(obj.path);
+                set(h1,'visible','off'); 
+                hold on;
+                
+                for i=1:obj.len
+                    plot(obj.x(i),obj.y(i),'.r','Markersize',10);
+                end
+                image=getframe(h1);
+            catch
+            end
+            warning on
         end
         function flag=detect(obj,x,y)
             flag=0;

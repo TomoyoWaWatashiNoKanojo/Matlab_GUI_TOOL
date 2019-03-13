@@ -111,6 +111,8 @@ FileName=0;
                 set(shooow,'ButtonDownFcn',{@myCallback,handles});
                 handles.shooow=shooow;
                 guidata(hObject,handles);
+                I.Model=-1;
+                set(handles.text5, 'string','Draw');
                 return;
             end
             img=imread(pathall);
@@ -124,6 +126,8 @@ FileName=0;
         set(shooow,'ButtonDownFcn',{@myCallback,handles});
         handles.shooow=shooow;
         guidata(hObject,handles);
+        I.Model=-1;
+        set(handles.text5, 'string','Draw');
     end
 
 
@@ -168,8 +172,8 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton4 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-    zoom out ;
-    new_imagee=getframe(handles.axes1);
+    global I;
+    new_imagee=I.save_img();
     [filename,pathname,fileindex]=uiputfile({'*.png';'*.bmp';'*.jpg';},'Save as');
     if  filename~=0
         file=strcat(pathname,filename);
@@ -182,10 +186,9 @@ function pushbutton4_Callback(hObject, eventdata, handles)
                 imwrite(new_imagee.cdata,file,'jpg')
         end
         mat_name=rename(filename);
-        global I;
         saved_I=I;
         saved_I.surrent_point=0;
-        delete(saved_I.chose_symbol);
+        clear saved_I.chose_symbol;
         saved_I.chose_symbol=0;
         is_exist=exist(mat_name,'file');
         if is_exist==1
@@ -201,14 +204,12 @@ function pushbutton6_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbutton6 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-zoom off;
+    global I;
+    I.Model=I.Model*-1;
+    if I.Model==-1
+        set(handles.text5, 'string','Draw');
+    else
+        set(handles.text5, 'string','Enlarge');
+    end
 
 % --- Executes on button press in pushbutton7.
-function pushbutton7_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton7 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-    global I;
-    %if (I.path~=0)
-        zoom on;
-    % end
