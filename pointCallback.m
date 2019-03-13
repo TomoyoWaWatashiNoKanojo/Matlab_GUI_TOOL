@@ -13,6 +13,7 @@ function pointCallback(hObject, eventdata, handles)
     flag=I.detect(x2,y2);
     I.surrent_point=flag;
     I.chose_symbol=plot(I.x(flag),I.y(flag),'go','Markersize',10);
+    flag
     str=I.get_now_points(flag);
     set(handles.text3,'string',str);
 end

@@ -57,6 +57,8 @@ handles.output = hObject;
 
 % Update handles structure
 guidata(hObject, handles);
+global I;
+I=0;
 
 % UIWAIT makes main wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -89,7 +91,9 @@ FileName=0;
     if isequal(FileName,0)  
         disp('User selected Cancel') 
     else
+        %handles.axes1
         try 
+            hold off;
             global I;
             I=IMG;
             pathall=strcat(PathName,FileName);
@@ -99,7 +103,8 @@ FileName=0;
                 load(n);
                 I=saved_I;
                 axes(handles.axes1);
-                shooow=imshow(I.path);
+                shooow=imagesc(I.path);
+                axis image
                 hold on;
                 for i=1:I.len
                     h=plot(I.x(i),I.y(i),'.r','Markersize',10);
@@ -117,7 +122,9 @@ FileName=0;
             end
             img=imread(pathall);
             axes(handles.axes1);
-            shooow=imshow(img);
+            shooow=image(img);
+            axis image
+            hold on;
             I.setInfo(pathall);
         catch ErrorInfo
             disp(ErrorInfo);
@@ -205,11 +212,13 @@ function pushbutton6_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global I;
-    I.Model=I.Model*-1;
-    if I.Model==-1
-        set(handles.text5, 'string','Draw');
-    else
-        set(handles.text5, 'string','Enlarge');
+    if I~=0
+        I.Model=I.Model*-1;
+        if I.Model==-1
+            set(handles.text5, 'string','Draw');
+        else
+            set(handles.text5, 'string','Enlarge');
+        end
     end
 
 % --- Executes on button press in pushbutton7.
