@@ -24,3 +24,11 @@ Use a static text instead of the listbox to interacte with the users.
 Create a new class to save the parameters.
 
 When users choose a point, this point will be highlighted.
+
+3/13
+
+Use a new button to sshift the model.
+
+In draw model, user can draw the points.
+
+In enlarge model, users can use the mouse wheel to zoom in and out, and drag image to show the different parts.
