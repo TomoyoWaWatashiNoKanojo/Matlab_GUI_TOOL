@@ -27,7 +27,7 @@ When users choose a point, this point will be highlighted.
 
 3/13
 
-Use a new button to sshift the model.
+Use a new button to shift the model.
 
 In draw model, user can draw the points.
 
