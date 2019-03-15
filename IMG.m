@@ -84,15 +84,11 @@ classdef IMG < handle
             end
             warning on
         end
-        function flag=detect(obj,x,y)
-            [r,c]=size(obj.path);
+        function flag=detect(obj,h)
             flag=0;
-            d=sqrt(r*r+c*c)/100*1.4;
             for i=1:obj.len
-                dx=abs(obj.x(i)-x);
-                dy=abs(obj.y(i)-y);
-                if(dy<d & dx<d)
-                    flag=obj.map(obj.x(i),obj.y(i));
+                if obj.plot_handle(i)==h
+                    flag=i;
                 end
             end
         end

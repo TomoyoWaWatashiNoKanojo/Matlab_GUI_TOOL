@@ -9,7 +9,7 @@ function pointCallback(hObject, eventdata, handles)
     if I.chose_symbol~=0
             delete(I.chose_symbol);
     end
-    flag=I.detect(x2,y2);
+    flag=I.detect(hObject);
     if(flag==0)
         return;
     end

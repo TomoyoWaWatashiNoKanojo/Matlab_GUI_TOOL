@@ -20,7 +20,7 @@
             if I.chose_symbol~=0
                 delete(I.chose_symbol);
             end
-            I.chose_symbol=plot(I.x(I.len),I.y(I.len),'go','Markersize',10);
+            I.chose_symbol=plot(I.x(I.len),I.y(I.len),'go','Markersize',8);
         catch
         end
     end
