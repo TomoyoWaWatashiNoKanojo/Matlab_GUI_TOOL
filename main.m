@@ -82,26 +82,28 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 FileName=0;
     [FileName,PathName]=uigetfile( ...
-    {'*.jpg;*.bmp;*.tif','Image Files(*.jpg,*.bmp,*.tif)';
-    '*.jpg','*.jpg';
-    '*.bmp','*.bmp';
-    '*.tif','*.tif';
-    '*.*','All Files(*.*)'},...
+    {'*.dcm','Image Files(*.dcm)';
+    '*.dcm','*.dcm';},...
     'Select images','Multiselect','on');   
     if isequal(FileName,0)  
         disp('User selected Cancel') 
     else
         %handles.axes1
-        try 
+        %try 
             hold off;
             global I;
+            I=[];
             I=IMG;
             pathall=strcat(PathName,FileName);
             n=rename(pathall);
             is_exist=exist(n,'file')
             if is_exist~=0
                 load(n);
+                saved_I.surrent_point=0;
+                clear saved_I.chose_symbol;
+                saved_I.chose_symbol=0;
                 I=saved_I;
+                set(handles.text5, 'string',' ');
                 axes(handles.axes1);
                 shooow=imagesc(I.path);
                 axis image
@@ -120,16 +122,19 @@ FileName=0;
                 set(handles.text5, 'string','Draw');
                 return;
             end
-            img=imread(pathall);
+            img=dicomread(pathall);
             axes(handles.axes1);
-            shooow=image(img);
+            shooow=imagesc(img);
             axis image
             hold on;
             I.setInfo(pathall);
-        catch ErrorInfo
-            disp(ErrorInfo);
-            h=warndlg(ErrorInfo.message,'Warning');
-        end
+            I.useless_data=dicominfo(pathall);
+        %catch ErrorInfo
+            %disp(ErrorInfo);
+            %h=warndlg(ErrorInfo.message,'Warning');
+            %return;
+        %end
+        
         set(shooow,'ButtonDownFcn',{@myCallback,handles});
         handles.shooow=shooow;
         guidata(hObject,handles);
@@ -182,26 +187,29 @@ function pushbutton4_Callback(hObject, eventdata, handles)
     global I;
     new_imagee=I.save_img();
     [filename,pathname,fileindex]=uiputfile({'*.png';'*.bmp';'*.jpg';},'Save as');
+    dcm_name=rename2(filename);
+    dcm_name=strcat(pathname,dcm_name)
     if  filename~=0
         file=strcat(pathname,filename);
         switch fileindex     
             case 1
+                dicomwrite(I.path, dcm_name,I.useless_data);
                 imwrite(new_imagee.cdata,file,'png')
             case 2
+                dicomwrite(I.path, dcm_name,I.useless_data);
                 imwrite(new_imagee.cdata,file,'bmp')
             case 3
+                dicomwrite(I.path, dcm_name,I.useless_data);
                 imwrite(new_imagee.cdata,file,'jpg')
         end
         mat_name=rename(filename);
         saved_I=I;
-        saved_I.surrent_point=0;
-        clear saved_I.chose_symbol;
-        saved_I.chose_symbol=0;
         is_exist=exist(mat_name,'file');
         if is_exist==1
             delete(mat_name);
         end
         save(mat_name,'saved_I');
+        %I.del_highlight();
         msgbox('Save successfully£¡','Finished£¡');
     end
 

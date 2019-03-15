@@ -9,11 +9,12 @@ function pointCallback(hObject, eventdata, handles)
     if I.chose_symbol~=0
             delete(I.chose_symbol);
     end
-    
     flag=I.detect(x2,y2);
+    if(flag==0)
+        return;
+    end
     I.surrent_point=flag;
     I.chose_symbol=plot(I.x(flag),I.y(flag),'go','Markersize',10);
-    flag
     str=I.get_now_points(flag);
     set(handles.text3,'string',str);
 end

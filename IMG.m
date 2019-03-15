@@ -9,6 +9,7 @@ classdef IMG < handle
         prev_point=0;
         surrent_point=0;
         chose_symbol=0;
+        useless_data;
         Model=-1; %-1:draw 1:enlarge
     end
     methods % these are the functions
@@ -20,7 +21,7 @@ classdef IMG < handle
             obj.y=zeros();
             obj.plot_handle=[];
             obj.len=0;
-            im=imread(path);
+            im=dicomread(path);
             obj.path=im;
             [r,c]=size(im);
             map=zeros(r,c);
@@ -60,12 +61,18 @@ classdef IMG < handle
             obj.surrent_point=0;
             delete(obj.chose_symbol);
         end
+        function del_highlight(obj)
+            %delete(obj.chose_symbol);
+            clear obj.chose_symbol;
+            obj.chose_symbol=0;
+            obj.surrent_point=0;
+        end
         function image=save_img(obj)
             try
                 warning off
                 h1=figure(1);
                 set(h1,'visible','off'); 
-                imshow(obj.path);
+                imagesc(obj.path);
                 set(h1,'visible','off'); 
                 hold on;
                 
@@ -78,11 +85,13 @@ classdef IMG < handle
             warning on
         end
         function flag=detect(obj,x,y)
+            [r,c]=size(obj.path);
             flag=0;
+            d=sqrt(r*r+c*c)/100*1.4;
             for i=1:obj.len
                 dx=abs(obj.x(i)-x);
                 dy=abs(obj.y(i)-y);
-                if(dy<10 & dx<10)
+                if(dy<d & dx<d)
                     flag=obj.map(obj.x(i),obj.y(i));
                 end
             end
